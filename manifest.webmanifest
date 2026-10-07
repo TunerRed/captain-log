@@ -1,0 +1,19 @@
+{
+  "name": "机长日志 · 起飞统计",
+  "short_name": "机长日志",
+  "description": "日历式起飞记录 + 角色/分类标签统计：记录每天对着哪些角色起飞、打了什么标签，并按时间段统计排行与时间分布。数据只保存在本机。",
+  "lang": "zh-CN",
+  "start_url": "./index.html",
+  "scope": "./",
+  "display": "standalone",
+  "orientation": "portrait",
+  "background_color": "#0d0f16",
+  "theme_color": "#0d0f16",
+  "categories": ["lifestyle", "productivity"],
+  "icons": [
+    { "src": "icons/icon.svg", "sizes": "any", "type": "image/svg+xml", "purpose": "any" },
+    { "src": "icons/icon-192.png", "sizes": "192x192", "type": "image/png", "purpose": "any" },
+    { "src": "icons/icon-512.png", "sizes": "512x512", "type": "image/png", "purpose": "any" },
+    { "src": "icons/icon-maskable-512.png", "sizes": "512x512", "type": "image/png", "purpose": "maskable" }
+  ]
+}

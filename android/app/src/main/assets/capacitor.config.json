@@ -1,0 +1,11 @@
+{
+  "appId": "com.captainlog.app",
+  "appName": "机长日志",
+  "webDir": ".",
+  "android": {
+    "allowMixedContent": false
+  },
+  "server": {
+    "androidScheme": "https"
+  }
+}

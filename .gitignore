@@ -1,0 +1,95 @@
+# ============================================================================
+# 机长日志 · Git 忽略规则
+#
+# 分三类：
+#   A. 凭据 / 私钥 —— 绝对不能公开（有实际风险，不只是"不优雅"）
+#   B. 依赖与构建产物 —— 随时能由脚本重新生成，进仓库只会制造事故
+#   C. 本仓库自带的开发 / 自测临时文件
+#
+# 规则写在哪一层就以哪一层为基准：本文件是仓库根，路径从 captain-log/ 起算；
+# android/ 下还有一份更细的 .gitignore（那一层的规则优先）。
+# ============================================================================
+
+
+# ---------------------------------------------------------------------------
+# A. 凭据 / 私钥（绝不能提交）
+# ---------------------------------------------------------------------------
+# release 签名私钥：泄露 = 别人能伪造你的"升级包"；丢失 = 无法给已安装的 App 覆盖升级。
+android/release.keystore
+android/*.keystore
+android/*.jks
+android/*.p12
+android/*.pem
+android/*.key
+android/*.pepk
+# 签名密码（明文）
+android/keystore.properties
+# 兜底：任何位置出现这些名字/后缀都不提交
+keystore.properties
+*.keystore
+*.jks
+*.p12
+*.pem
+*.key
+*.mobileprovision
+*.pepk
+# 不含密码的模板是可以公开的，方便换机器时照着重填
+!android/keystore.properties.example
+# 可能含 API Key / 项目凭据
+google-services.json
+**/google-services.json
+.env
+.env.*
+.npmrc
+# 本机 SDK 路径（每台机器都不一样）
+local.properties
+
+# 注意：不要整类忽略 *.properties ——
+# android/gradle.properties 和 android/gradle/wrapper/gradle-wrapper.properties 是要提交的构建配置。
+
+
+# ---------------------------------------------------------------------------
+# B. 依赖与构建产物（脚本随时能重建）
+# ---------------------------------------------------------------------------
+node_modules/
+# 打好的 APK（含签名产物）：二进制不进仓库，要发布就挂到 Release / 网盘
+release/
+*.apk
+*.aab
+*.aar
+*.ap_
+*.dex
+*.class
+*.hprof
+.gradle/
+build/
+
+# 构建脚本会把整份 web 代码拷进安卓工程；源就在仓库根目录。
+# 不提交这份副本，否则很容易把上一版前端打进新 APK（本项目真踩过一次：新包里裹了旧包）。
+android/app/src/main/assets/public/
+
+
+# ---------------------------------------------------------------------------
+# C. 开发 / 自测临时文件
+# ---------------------------------------------------------------------------
+# 渲染自检与排版探针的产物
+.verify/
+.verify-profile-*/
+.probe-*
+.p-*
+.chrome-profile/
+.layout-probe-profile/
+*.log
+npm-debug.log*
+yarn-error.log*
+# 编辑器 / 系统垃圾
+.DS_Store
+Thumbs.db
+desktop.ini
+*~
+*.bak
+*.tmp
+*.orig
+.idea/
+.vscode/
+*.iml

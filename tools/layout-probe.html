@@ -1,0 +1,94 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>机长日志 · 编辑页排版探针</title>
+<link rel="stylesheet" href="../css/styles.css">
+<style>
+  /* 探针自己的输出区（不参与被测布局） */
+  #out {
+    position: fixed; left: 0; bottom: 0; right: 0; z-index: 999;
+    background: #000; color: #0f0; font: 12px/1.5 Consolas, monospace;
+    white-space: pre-wrap; padding: 6px; margin: 0;
+  }
+</style>
+</head>
+<body>
+<!--
+  排版探针：直接加载真实的编辑器（复用同一套 css / editor / store），
+  在不同窗口宽度下量「日期列 / 时间列 / 时间输入框」的真实像素，并统计横向溢出。
+  用法（先 npm run serve）：
+    chrome --headless=new --window-size=360,900 --dump-dom http://127.0.0.1:4380/tools/layout-probe.html
+  输出里找 RESULT 段。
+-->
+<div id="sheet-root"></div>
+<div id="toast-root"></div>
+
+<script src="../js/util.js"></script>
+<script src="../js/kit.js"></script>
+<script src="../js/reminder-core.js"></script>
+<script src="../js/store.js"></script>
+<script src="../js/view-editor.js"></script>
+<script>
+(function () {
+  // ?panel=360 用来模拟手机上的面板宽度（headless 窗口最小约 500px，
+  // 而编辑器内部布局只取决于面板内容宽度，所以直接约束面板更准确）
+  var panelW = Number((location.search.match(/panel=(\d+)/) || [])[1] || 0);
+  if (panelW) {
+    var st = document.createElement('style');
+    st.textContent = '.panel{max-width:' + panelW + 'px !important;width:' + panelW + 'px !important;}';
+    document.head.appendChild(st);
+  }
+
+  // 有示例数据，角色/标签区才有内容可量
+  if (!Store.get().records.length) Store.loadSample();
+  Editor.open({ date: U.D.todayKey() });
+
+  setTimeout(function () {
+    var row = document.querySelector('.editor .field-row');
+    var lines = [];
+    lines.push('panel参数=' + (panelW || '无(桌面)') + '  窗口=' + window.innerWidth + 'x' + window.innerHeight);
+    if (!row || row.children.length < 2) {
+      lines.push('editor 未渲染：row=' + !!row);
+    } else {
+      // 按 DOM 顺序取，避免依赖类名（这样改动前后都能量同一批元素）
+      var dateField = row.children[0];
+      var timeField = row.children[1];
+      var timeInput = timeField.querySelector('.time-input');
+      var box = function (el) {
+        var b = el.getBoundingClientRect();
+        return Math.round(b.width) + 'x' + Math.round(b.height);
+      };
+      var sameLine = Math.abs(dateField.getBoundingClientRect().top - timeField.getBoundingClientRect().top) < 4;
+      var bad = [];
+      Array.prototype.forEach.call(document.querySelectorAll('.editor .field-row, .editor .field-row *'), function (el) {
+        // SVG 内部节点（path 等）的几何尺寸没有意义，只量 HTML 盒模型
+        if (window.SVGElement && el instanceof window.SVGElement) return;
+        var b = el.getBoundingClientRect();
+        var p = el.parentElement && el.parentElement.getBoundingClientRect();
+        if (!p) return;
+        var who = function (n) {
+          var c = '';
+          try { c = (typeof n.className === 'string' ? n.className : (n.getAttribute && n.getAttribute('class')) || ''); } catch (e) { c = ''; }
+          return n.tagName.toLowerCase() + (c ? '.' + c.split(' ').join('.') : '');
+        };
+        var where = who(el) + '<' + who(el.parentElement) + '>';
+        if (b.width > 0 && b.right > p.right + 1) bad.push(where + ' 右溢出');
+        if (b.width > 0 && b.width < 12) bad.push(where + '=' + Math.round(b.width) + 'px');
+      });
+      lines.push('面板内容宽=' + Math.round(row.getBoundingClientRect().width));
+      lines.push('日期列=' + box(dateField) + '  时间列=' + box(timeField) + '  时间框=' + box(timeInput));
+      lines.push('日期/时间同一行=' + sameLine);
+      lines.push('问题=' + (bad.length ? bad.join(' | ') : '无'));
+    }
+    document.title = 'PROBE-DONE';
+    var out = document.createElement('pre');
+    out.id = 'out';
+    out.textContent = 'RESULT\n' + lines.join('\n') + '\nEND';
+    document.body.appendChild(out);
+  }, 400);
+})();
+</script>
+</body>
+</html>

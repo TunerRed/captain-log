@@ -1,0 +1,16 @@
+{
+  "name": "captain-log",
+  "private": true,
+  "version": "1.0.0",
+  "description": "机长日志 · 起飞记录与统计：日历记录 + 角色/分类标签统计 + 时间分布（纯静态 PWA，零依赖）",
+  "type": "module",
+  "license": "MIT",
+  "scripts": {
+    "serve": "node tools/serve.mjs 4380",
+    "test": "node tools/selftest.mjs",
+    "icons": "node tools/make-icons.mjs --android",
+    "verify": "powershell -NoProfile -ExecutionPolicy Bypass -File tools/verify-render.ps1",
+    "gitcheck": "powershell -NoProfile -ExecutionPolicy Bypass -File tools/check-gitignore.ps1",
+    "apk": "powershell -NoProfile -ExecutionPolicy Bypass -File tools/build-apk.ps1"
+  }
+}

@@ -1,0 +1,13 @@
+<?xml version='1.0' encoding='utf-8'?>
+<resources>
+    <string name="app_name">机长日志</string>
+    <string name="title_activity_main">机长日志</string>
+    <string name="package_name">com.captainlog.app</string>
+    <string name="custom_url_scheme">com.captainlog.app</string>
+
+    <!-- 起飞提醒 -->
+    <string name="reminder_channel_name">起飞提醒</string>
+    <string name="reminder_channel_desc">每天到点提醒你今天还没有起飞记录</string>
+    <string name="reminder_default_title">今天还没有起飞记录</string>
+    <string name="reminder_default_body">该起飞了 ✈️ 点一下记一笔</string>
+</resources>
